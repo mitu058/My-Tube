@@ -21,8 +21,9 @@ const loadCategories = () =>{
     .then((data) => displayCategiries(data.categories))
     .catch((error) => console.log(error))
 }
-const loadVideos = () =>{
-    fetch('https://openapi.programming-hero.com/api/phero-tube/videos')
+
+const loadVideos = (searchText ="") =>{
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchText}`)
     .then((res) => res.json())
     .then((data) => displayVideos(data.videos))
     .catch((error) => console.log(error))
@@ -42,6 +43,30 @@ const loadCategoriesVideo = (id)=>{
     })
     .catch((error) => console.log(error))
 }
+
+const videoDetails =async (videoId)=>{
+    console.log(videoId)
+    const uri = `https://openapi.programming-hero.com/api/phero-tube/video/${videoId}`
+    const res = await fetch(uri)
+    const data = await res.json()
+    displayDetails(data.video)
+}
+ const displayDetails = (video=>{
+    console.log(video)
+
+    const detailContainer = document.getElementById("modal-content")
+    detailContainer.innerHTML = `
+
+     <img src="${video.thumbnail}"/>
+     <p class="pt-4">${video.description}</p>
+    `
+    // way-1
+    // document.getElementById("showModaldata").click()
+
+    // way-2
+    document.getElementById("customModal").showModal()
+ })
+
 const cardDemo = {
     "category_id": "1003",
     "video_id": "aaac",
@@ -107,10 +132,12 @@ const displayVideos = (videos) =>{
    <h2 class="text-lg font-semibold">${video.title}</h2>
    <div class="flex items-center gap-2">
    <p>${video.authors[0].profile_name}</p>
-   ${video.authors[0].verified == true? '<img class="w-5" src="https://img.icons8.com/?size=48&id=D9RtvkuOe31p&format=png"/>':''}
+   ${video.authors[0].verified == true? 
+    '<img class="w-5" src="https://img.icons8.com/?size=48&id=D9RtvkuOe31p&format=png"/>':''
+    }
    </div>
    
-   <p>${video.others.views}</p>
+   <p><button onclick="videoDetails('${video.video_id}')" class="btn btn-sm btn-error">Details</button></p>
    </div>
   </div>
         `
@@ -137,6 +164,8 @@ const displayCategiries = (categories) =>{
          categoryContainer.append(buttonContainer)
     });
 }
-
+document.getElementById("search-input").addEventListener("keyup",(e)=>{
+    loadVideos(e.target.value)
+})
 loadCategories()
 loadVideos()
